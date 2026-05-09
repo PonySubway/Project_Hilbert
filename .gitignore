@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+build/
+dist/
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Local models and vector databases
+models/
+.chroma/
+.chroma_test/
+
+# Generated corpora / large public dictionaries
+corpus/*.txt
+corpus/raw/
+
+# Test/cache artifacts
+.pytest_cache/
+.cache/
+.coverage
+htmlcov/
+

@@ -1,0 +1,5 @@
+# Optional dependencies for real embeddings and Chroma-backed large lexicons.
+sentence-transformers>=3.0.0
+chromadb>=0.5.0
+jieba>=0.42.1
+

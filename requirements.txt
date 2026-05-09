@@ -1,0 +1,5 @@
+# Project Hilbert v0.1 has no required third-party dependencies.
+# The default `--model mock` mode runs with the Python standard library.
+# For real embedding models, install optional dependencies from:
+#   requirements-optional.txt
+

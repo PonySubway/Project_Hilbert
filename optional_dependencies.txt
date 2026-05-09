@@ -1,0 +1,15 @@
+# Optional dependencies for real neural embedding models and Chroma indexing
+
+Install this manually when you want to use:
+
+- --model mini
+- --model bge-m3
+- --model <custom sentence-transformers model>
+
+PowerShell:
+
+pip install sentence-transformers>=3.0.0
+pip install chromadb>=0.5.0 jieba>=0.42.1
+
+Note: BAAI/bge-m3 downloads model files to the local Hugging Face cache on first use.
+
