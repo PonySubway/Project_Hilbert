@@ -162,6 +162,42 @@ python main.py --concepts data/concepts.zh.txt search "人工智能"
 python -m unittest discover -s tests
 ```
 
+## Web UI
+
+The web API is optional and keeps the default package dependency-free. Install
+the web requirements only when you want to run the browser interface:
+
+```powershell
+pip install -r requirements-web.txt
+uvicorn project_hilbert.web_api:app --host 127.0.0.1 --port 8000
+```
+
+In another terminal, start the zero-dependency Node frontend:
+
+```powershell
+cd web
+npm start
+```
+
+Open `http://127.0.0.1:5173`. The frontend proxies `/api/*` to
+`http://127.0.0.1:8000` by default. Override it with `HILBERT_API_URL`.
+
+Useful environment variables:
+
+```text
+HILBERT_MODEL=mock
+HILBERT_CONCEPTS=data/concepts.zh.txt
+HILBERT_COLLECTION=project_hilbert_zh
+HILBERT_PERSIST_DIR=.chroma
+DEEPSEEK_API_KEY=...
+DEEPSEEK_MODEL=deepseek-v4-flash
+DEEPSEEK_BASE_URL=https://api.deepseek.com
+```
+
+The explanation endpoint requires `DEEPSEEK_API_KEY`. Without it, the semantic
+ring and relation detector still work, while explanation requests return a
+configuration error.
+
 ## Project files
 
 ```text

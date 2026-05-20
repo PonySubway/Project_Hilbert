@@ -27,3 +27,7 @@ corpus/raw/
 .coverage
 htmlcov/
 
+# Web frontend
+web/node_modules/
+web/.cache/
+

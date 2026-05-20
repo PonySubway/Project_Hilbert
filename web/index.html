@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Project Hilbert</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Project Hilbert</p>
+          <h1>语义圆环</h1>
+        </div>
+        <div class="status" id="status">连接中</div>
+      </header>
+
+      <section class="search-band" aria-label="语义搜索">
+        <form id="search-form" class="search-form">
+          <label class="field word-field">
+            <span>词语</span>
+            <input id="query-input" name="query" type="text" value="苹果" autocomplete="off" required>
+          </label>
+          <label class="field number-field">
+            <span>层数</span>
+            <input id="layers-input" name="layers" type="number" min="5" max="12" value="5">
+          </label>
+          <label class="field number-field">
+            <span>每层</span>
+            <input id="per-layer-input" name="perLayer" type="number" min="1" max="24" value="8">
+          </label>
+          <button class="primary" type="submit">生成</button>
+        </form>
+      </section>
+
+      <section class="workspace">
+        <div class="ring-panel" aria-label="同心圆语义结果">
+          <div class="ring-stage" id="ring-stage">
+            <div class="empty-state">输入词语后生成圆环</div>
+          </div>
+        </div>
+
+        <aside class="detail-panel" aria-label="词义解释">
+          <div class="panel-heading">
+            <p class="eyebrow">AI 解释</p>
+            <h2 id="detail-word">选择一个词</h2>
+          </div>
+          <div id="detail-body" class="detail-body">
+            <p>点击圆环上的词语。</p>
+          </div>
+        </aside>
+      </section>
+
+      <section class="relation-band" aria-label="关系检测器">
+        <div class="panel-heading">
+          <p class="eyebrow">内积检测</p>
+          <h2>关系检测器</h2>
+        </div>
+        <form id="relation-form" class="relation-form">
+          <label class="field">
+            <span>词语 A</span>
+            <input id="left-input" type="text" value="苹果" required>
+          </label>
+          <label class="field">
+            <span>词语 B</span>
+            <input id="right-input" type="text" value="香蕉" required>
+          </label>
+          <button class="secondary" type="submit">检测</button>
+        </form>
+        <div class="score-row">
+          <div class="score-meter" aria-hidden="true">
+            <div id="score-fill"></div>
+          </div>
+          <div id="score-output" class="score-output">0.000</div>
+        </div>
+        <div id="relation-detail" class="relation-detail">等待检测</div>
+      </section>
+    </main>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
