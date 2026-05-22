@@ -194,6 +194,10 @@ DEEPSEEK_MODEL=deepseek-v4-flash
 DEEPSEEK_BASE_URL=https://api.deepseek.com
 ```
 
+The API also reads these values from a project-root `.env` file. Process
+environment variables take precedence over `.env` values. Use
+`HILBERT_ENV_FILE=path\to\.env` to point at another file.
+
 The explanation endpoint requires `DEEPSEEK_API_KEY`. Without it, the semantic
 ring and relation detector still work, while explanation requests return a
 configuration error.

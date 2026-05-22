@@ -20,6 +20,7 @@ from .vector_math import Vector, clamp, dot
 DEFAULT_CONCEPTS = Path(__file__).resolve().parent.parent / "data" / "concepts.zh.txt"
 DEFAULT_DEEPSEEK_BASE_URL = "https://api.deepseek.com"
 DEFAULT_DEEPSEEK_MODEL = "deepseek-v4-flash"
+DEFAULT_ENV_FILE = Path(__file__).resolve().parent.parent / ".env"
 
 
 class UrlOpen(Protocol):
@@ -43,15 +44,16 @@ class WebSettings:
 
     @classmethod
     def from_env(cls) -> "WebSettings":
-        """Build settings from environment variables."""
+        """Build settings from environment variables and an optional .env file."""
+        values = load_env_settings()
         return cls(
-            model=os.environ.get("HILBERT_MODEL", "mock"),
-            concepts=Path(os.environ.get("HILBERT_CONCEPTS", str(DEFAULT_CONCEPTS))),
-            collection=_blank_to_none(os.environ.get("HILBERT_COLLECTION")),
-            persist_dir=Path(os.environ.get("HILBERT_PERSIST_DIR", str(DEFAULT_CHROMA_DIR))),
-            deepseek_api_key=_blank_to_none(os.environ.get("DEEPSEEK_API_KEY")),
-            deepseek_model=os.environ.get("DEEPSEEK_MODEL", DEFAULT_DEEPSEEK_MODEL),
-            deepseek_base_url=os.environ.get("DEEPSEEK_BASE_URL", DEFAULT_DEEPSEEK_BASE_URL),
+            model=values.get("HILBERT_MODEL", "mock"),
+            concepts=Path(values.get("HILBERT_CONCEPTS", str(DEFAULT_CONCEPTS))),
+            collection=_blank_to_none(values.get("HILBERT_COLLECTION")),
+            persist_dir=Path(values.get("HILBERT_PERSIST_DIR", str(DEFAULT_CHROMA_DIR))),
+            deepseek_api_key=_blank_to_none(values.get("DEEPSEEK_API_KEY")),
+            deepseek_model=values.get("DEEPSEEK_MODEL", DEFAULT_DEEPSEEK_MODEL),
+            deepseek_base_url=values.get("DEEPSEEK_BASE_URL", DEFAULT_DEEPSEEK_BASE_URL),
         )
 
 
@@ -329,6 +331,53 @@ def relation_label(score: float) -> str:
     if score >= 0.18:
         return "弱相关"
     return "几乎无关"
+
+
+def load_env_settings(env_file: str | Path | None = None, environ: dict[str, str] | None = None) -> dict[str, str]:
+    """Load supported settings, with process environment taking precedence."""
+    source_environ = os.environ if environ is None else environ
+    path = Path(source_environ.get("HILBERT_ENV_FILE", str(env_file or DEFAULT_ENV_FILE)))
+    values = parse_env_file(path) if path.exists() else {}
+    for name in SUPPORTED_ENV_NAMES:
+        if name in source_environ:
+            values[name] = source_environ[name]
+    return values
+
+
+SUPPORTED_ENV_NAMES = {
+    "HILBERT_MODEL",
+    "HILBERT_CONCEPTS",
+    "HILBERT_COLLECTION",
+    "HILBERT_PERSIST_DIR",
+    "DEEPSEEK_API_KEY",
+    "DEEPSEEK_MODEL",
+    "DEEPSEEK_BASE_URL",
+}
+
+
+def parse_env_file(path: str | Path) -> dict[str, str]:
+    """Parse a small dotenv file without adding a runtime dependency."""
+    values: dict[str, str] = {}
+    for line in Path(path).read_text(encoding="utf-8").splitlines():
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#"):
+            continue
+        if stripped.startswith("export "):
+            stripped = stripped[len("export ") :].lstrip()
+        if "=" not in stripped:
+            continue
+        name, raw_value = stripped.split("=", 1)
+        name = name.strip()
+        if name not in SUPPORTED_ENV_NAMES:
+            continue
+        values[name] = _parse_env_value(raw_value.strip())
+    return values
+
+
+def _parse_env_value(value: str) -> str:
+    if len(value) >= 2 and value[0] == value[-1] and value[0] in {"'", '"'}:
+        value = value[1:-1]
+    return value
 
 
 def parse_json_response(raw: str) -> dict[str, Any]:

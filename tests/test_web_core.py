@@ -1,5 +1,7 @@
 import io
+import tempfile
 import urllib.error
+from pathlib import Path
 from unittest import TestCase
 
 from project_hilbert.web_core import (
@@ -8,6 +10,8 @@ from project_hilbert.web_core import (
     DeepSeekConfigError,
     DeepSeekResponseError,
     HilbertWebService,
+    load_env_settings,
+    parse_env_file,
 )
 
 
@@ -60,6 +64,41 @@ class WebCoreTests(TestCase):
         related = self.service.relate("苹果", "香蕉")
         unrelated = self.service.relate("苹果", "伦敦")
         self.assertGreater(related["score"], unrelated["score"])
+
+
+class EnvFileTests(TestCase):
+    def test_parse_env_file_reads_supported_values(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / ".env"
+            path.write_text(
+                "\n".join(
+                    [
+                        "# local config",
+                        "HILBERT_MODEL=bge-m3",
+                        "HILBERT_COLLECTION='project_hilbert_zh'",
+                        'DEEPSEEK_BASE_URL="https://api.deepseek.com"',
+                        "UNRELATED=value",
+                    ]
+                ),
+                encoding="utf-8",
+            )
+
+            values = parse_env_file(path)
+
+        self.assertEqual(values["HILBERT_MODEL"], "bge-m3")
+        self.assertEqual(values["HILBERT_COLLECTION"], "project_hilbert_zh")
+        self.assertEqual(values["DEEPSEEK_BASE_URL"], "https://api.deepseek.com")
+        self.assertNotIn("UNRELATED", values)
+
+    def test_environment_values_override_env_file(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / ".env"
+            path.write_text("DEEPSEEK_API_KEY=file-key\nHILBERT_MODEL=mock\n", encoding="utf-8")
+
+            values = load_env_settings(path, environ={"DEEPSEEK_API_KEY": "process-key"})
+
+        self.assertEqual(values["DEEPSEEK_API_KEY"], "process-key")
+        self.assertEqual(values["HILBERT_MODEL"], "mock")
 
 
 class DeepSeekClientTests(TestCase):
